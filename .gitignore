@@ -28,8 +28,4 @@ Makefile.in
 /stamp-h1
 /test-driver
 
-/power
-/parse
-/xcorr-slow
-/xcorr-fast
-/xcorr-correctness-test
+/demo

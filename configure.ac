@@ -22,6 +22,7 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 PKG_CHECK_MODULES([fftw3f],[fftw3f])
+PKG_CHECK_MODULES([alsa],[alsa])
 
 # Checks for header files.
 AC_LANG_PUSH(C++)
