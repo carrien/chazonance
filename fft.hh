@@ -13,6 +13,7 @@ using ComplexSignal = AlignedSignal<std::complex<float>>;
 struct FFTPlan
 {
     fftwf_plan plan{};
+
     FFTPlan() {}
     FFTPlan( const std::string & what, const fftwf_plan p );
     ~FFTPlan();

@@ -9,7 +9,11 @@ using namespace std;
 
 void program_body( const string & filename __attribute((unused)) )
 {
+    RealSignal time( 48000 * 40 );
+    ComplexSignal frequency( time.size() / 2 + 1 );
 
+    FFTPair fft { time, frequency };
+    fft.time2frequency( time, frequency );
 }
 
 int main( const int argc, const char * argv[] )
