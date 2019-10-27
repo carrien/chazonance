@@ -52,6 +52,7 @@ void program_body( const string & filename )
     sound_card.start();
 
     while ( true ) {
+	/* eliminate frequencies below 20 Hz */
 	fft.time2frequency( wav.samples(), frequency );
 	for ( unsigned int i = 0; i < frequency.size(); i++ ) {
 	    if ( i * 24000.0 / frequency.size() < 20.0 ) {
@@ -60,6 +61,7 @@ void program_body( const string & filename )
 	}
 	fft.frequency2time( frequency, wav.samples() );
 
+	/* find RMS amplitude and peak amplitudes */
 	const auto [ rms, peak, peak_location ] = amplitude( wav.samples() );
 	cerr << "Playing " << wav.samples().size() / 48000.0
 	     << " seconds with RMS amplitude = " << rms << " dB"
@@ -73,6 +75,7 @@ void program_body( const string & filename )
 	     << " and peak amplitude = " << peak_freq << " dB"
 	     << " @ " << peak_location_freq * 24000.0 / frequency.size() << " Hz.\n";
 
+	/* play and record */
 	sound_card.play_and_record( wav.samples(), input );
 	wav.samples() = input;
     }
