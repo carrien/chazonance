@@ -6,7 +6,7 @@
 
 #include "helpers.hh"
 
-#include <asoundlib.h>
+#include <alsa/asoundlib.h>
 
 class SoundCard {
 private:
