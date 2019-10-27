@@ -1,21 +1,17 @@
 #ifndef WAV_HH
 #define WAV_HH
 
-#include <vector>
-#include <sndfile.hh>
+#include <string>
 
 #include "helpers.hh"
 
-class WavWrapper
+class WAV
 {
-    SndfileHandle handle_;
-    RealSignal samples_;
-
-    const int SAMPLE_RATE = 48000;
-    const int NUM_CHANNELS = 1;
+    RealSignal samples_ {};
 
 public:
-    WavWrapper( const std::string & filename );
+    void read_from( const std::string & filename );
+    void write_to( const std::string & filename );
 
     RealSignal & samples() { return samples_; }
 };

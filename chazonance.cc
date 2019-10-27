@@ -6,6 +6,7 @@
 #include "fft.hh"
 #include "audio.hh"
 #include "wav.hh"
+#include "constants.hh"
 
 using namespace std;
 
@@ -35,7 +36,8 @@ void program_body( const string & filename )
 {
     SoundCard sound_card { "default", "default" };
 
-    WavWrapper wav { filename };
+    WAV wav;
+    wav.read_from( filename );
 
     if ( wav.samples().size() % sound_card.period_size() ) {
 	const size_t new_size = sound_card.period_size() * (1 + (wav.samples().size() / sound_card.period_size()));
@@ -51,11 +53,14 @@ void program_body( const string & filename )
 
     sound_card.start();
 
-    while ( true ) {
+    for ( unsigned int iter = 0;; iter++ ) {
+	/* write out */
+	wav.write_to( filename + "-generation" + to_string( iter ) + ".wav" );
+
 	/* eliminate frequencies below 20 Hz */
 	fft.time2frequency( wav.samples(), frequency );
 	for ( unsigned int i = 0; i < frequency.size(); i++ ) {
-	    if ( i * 24000.0 / frequency.size() < 20.0 ) {
+	    if ( i * MAX_FREQUENCY / frequency.size() < 20.0 ) {
 		frequency[ i ] = 0;
 	    }
 	}
@@ -63,21 +68,23 @@ void program_body( const string & filename )
 
 	/* find RMS amplitude and peak amplitudes */
 	const auto [ rms, peak, peak_location ] = amplitude( wav.samples() );
-	cerr << "Playing " << wav.samples().size() / 48000.0
+	cout << "Iteration " << iter << ", playing " << wav.samples().size() / float( SAMPLE_RATE )
 	     << " seconds with RMS amplitude = " << rms << " dB"
 	     << " and peak amplitude = " << peak << " dB"
-	     << " @ " << peak_location / 48000.0 << " s.\n";
+	     << " @ " << peak_location / float( SAMPLE_RATE ) << " s.\n";
 
 	fft.time2frequency( wav.samples(), frequency );
 
 	const auto [ rms_freq, peak_freq, peak_location_freq ] = amplitude( frequency );
-	cerr << "In frequency domain, RMS amplitude = " << rms_freq << " dB"
+	cout << "In frequency domain, RMS amplitude = " << rms_freq << " dB"
 	     << " and peak amplitude = " << peak_freq << " dB"
-	     << " @ " << peak_location_freq * 24000.0 / frequency.size() << " Hz.\n";
+	     << " @ " << peak_location_freq * MAX_FREQUENCY / frequency.size() << " Hz.\n";
 
 	/* play and record */
 	sound_card.play_and_record( wav.samples(), input );
 	wav.samples() = input;
+
+	cout << endl;
     }
 }
 

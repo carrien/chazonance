@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "audio.hh"
+#include "constants.hh"
 
 using namespace std;
 
@@ -70,10 +71,10 @@ void SoundCard::set_params( Device & pcm )
 		snd_pcm_set_params( pcm,
 				    SND_PCM_FORMAT_FLOAT_LE,
 				    SND_PCM_ACCESS_RW_INTERLEAVED,
-				    1,
-				    48000,
+				    NUM_CHANNELS,
+				    SAMPLE_RATE,
 				    0,
-				    40000 ) );
+				    MIN_LATENCY ) );
 
     snd_pcm_sw_params_t *params;
     snd_pcm_sw_params_alloca( &params );
