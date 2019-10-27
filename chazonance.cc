@@ -42,6 +42,7 @@ void program_body( const string & filename )
 {
     WAV wav;
     wav.read_from( filename );
+    wav.samples().resize(wav.samples().size()+SAMPLE_RATE);
 
     {
 	SoundCard sound_card { "default", "default" };
@@ -73,6 +74,7 @@ void program_body( const string & filename )
 		frequency[ i ] = 0;
 	    }
 	}
+	auto frequency_save = frequency;
 	fft.frequency2time( frequency, wav.samples() );
 
 	/* find RMS amplitude and peak amplitudes */
@@ -82,12 +84,10 @@ void program_body( const string & filename )
 	     << " and peak amplitude = " << dB( peak ) << " dB"
 	     << " @ " << peak_location / float( SAMPLE_RATE ) << " s.\n";
 
-	fft.time2frequency( wav.samples(), frequency );
-
-	const auto [ rms_freq, peak_freq, peak_location_freq ] = amplitude( frequency );
+	const auto [ rms_freq, peak_freq, peak_location_freq ] = amplitude( frequency_save );
 	cout << "In frequency domain, RMS amplitude = " << dB( rms_freq ) << " dB"
 	     << " and peak amplitude = " << dB( peak_freq ) << " dB"
-	     << " @ " << peak_location_freq * MAX_FREQUENCY / frequency.size() << " Hz.\n";
+	     << " @ " << peak_location_freq * MAX_FREQUENCY / frequency_save.size() << " Hz.\n";
 
 	/* play and record */
 
