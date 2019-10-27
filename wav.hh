@@ -4,10 +4,12 @@
 #include <vector>
 #include <sndfile.hh>
 
+#include "helpers.hh"
+
 class WavWrapper
 {
     SndfileHandle handle_;
-    std::vector<float> samples_;
+    RealSignal samples_;
 
     const int SAMPLE_RATE = 48000;
     const int NUM_CHANNELS = 1;
@@ -15,7 +17,7 @@ class WavWrapper
 public:
     WavWrapper( const std::string & filename );
 
-    std::vector<float> & samples() { return samples_; }
+    RealSignal & samples() { return samples_; }
 };
 
 #endif /* WAV_HH */

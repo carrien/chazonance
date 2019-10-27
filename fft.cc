@@ -112,6 +112,8 @@ void FFTPair::time2frequency( RealSignal & time, ComplexSignal & frequency )
     check( time, frequency );
 
     fftwf_execute_dft_r2c( forward, raw( time ), raw( frequency ) );
+
+    for ( auto & x : frequency ) { x /= sqrt( N ); }
 }
 
 void FFTPair::frequency2time( ComplexSignal & frequency, RealSignal & time )
@@ -119,4 +121,6 @@ void FFTPair::frequency2time( ComplexSignal & frequency, RealSignal & time )
     check( time, frequency );
 
     fftwf_execute_dft_c2r( backward, raw( frequency ), raw( time) );
+
+    for ( auto & x : time ) { x /= sqrt( N ); }
 }

@@ -3,6 +3,7 @@
 
 #include <system_error>
 #include <vector>
+#include <complex>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -54,5 +55,11 @@ public:
     FileDescriptor( const FileDescriptor & other ) = delete;
     FileDescriptor & operator=( const FileDescriptor & other ) = delete;
 };
+
+template <typename T>
+using AlignedSignal = std::vector<T, boost::alignment::aligned_allocator<T, 64>>;
+
+using RealSignal = AlignedSignal<float>;
+using ComplexSignal = AlignedSignal<std::complex<float>>;
 
 #endif /* HELPERS_HH */

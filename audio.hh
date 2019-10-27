@@ -3,7 +3,8 @@
 
 #include <memory>
 #include <string>
-#include <vector>
+
+#include "helpers.hh"
 
 #include <asoundlib.h>
 
@@ -42,7 +43,7 @@ public:
 
     void start();
 
-    void play_and_record( const std::vector<float> & out, std::vector<float> & in );
+    void play_and_record( const RealSignal & out, RealSignal & in );
 
     unsigned int period_size() const { return speaker_.period_size(); }
 };

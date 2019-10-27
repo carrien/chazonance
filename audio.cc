@@ -73,7 +73,7 @@ void SoundCard::set_params( Device & pcm )
 				    1,
 				    48000,
 				    0,
-				    20000 ) );
+				    40000 ) );
 
     snd_pcm_sw_params_t *params;
     snd_pcm_sw_params_alloca( &params );
@@ -138,6 +138,11 @@ void SoundCard::start() {
     }
 
     check_state( SND_PCM_STATE_RUNNING );
+
+    RealSignal silence( 8 * speaker_.period_size() );
+    RealSignal input;
+
+    play_and_record( silence, input );
 }
 
 SoundCard::Device::~Device()
@@ -155,7 +160,7 @@ void SoundCard::Device::read_params()
 		snd_pcm_get_params( pcm_, &buffer_size_, &period_size_ ) );
 }
 
-void SoundCard::play_and_record( const vector<float> & out, vector<float> & in )
+void SoundCard::play_and_record( const RealSignal & out, RealSignal & in )
 {
     if ( out.size() % speaker_.period_size() ) {
 	throw runtime_error( "output size must be multiple of soundcard period (" + to_string( speaker_.period_size() ) + " samples)" );

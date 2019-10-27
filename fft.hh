@@ -6,12 +6,6 @@
 #include <complex>
 #include <fftw3.h> // needs to come after #include <complex>
 
-template <typename T>
-using AlignedSignal = std::vector<T, boost::alignment::aligned_allocator<T, 64>>;
-
-using RealSignal = AlignedSignal<float>;
-using ComplexSignal = AlignedSignal<std::complex<float>>;
-
 struct FFTPlan
 {
     fftwf_plan plan{};
