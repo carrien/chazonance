@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstring>
 #include <thread>
+#include <type_traits>
 
 using namespace std;
 
@@ -19,6 +20,9 @@ public:
         if ( thread::hardware_concurrency() > 1 ) {
             fftwf_plan_with_nthreads( thread::hardware_concurrency() / 2 );
         }
+
+	static_assert( sizeof(fftwf_complex) == sizeof(complex<float>),
+		       "fftwf_complex must be same as complex<float>" );
     }
 
     ~FFTW() { fftwf_cleanup_threads(); }

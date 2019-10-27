@@ -1,7 +1,9 @@
-#include <complex>
+#ifndef FFT_HH
+#define FFT_HH
 
 #include "helpers.hh"
 
+#include <complex>
 #include <fftw3.h> // needs to come after #include <complex>
 
 template <typename T>
@@ -44,3 +46,5 @@ public:
     FFTPair( const FFTPair & other ) = delete;
     FFTPair & operator=( const FFTPair & other ) = delete;
 };
+
+#endif /* FFT_HH */
