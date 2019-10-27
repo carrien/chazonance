@@ -73,7 +73,7 @@ void SoundCard::set_params( Device & pcm )
 				    1,
 				    48000,
 				    0,
-				    10667 ) );
+				    20000 ) );
 
     snd_pcm_sw_params_t *params;
     snd_pcm_sw_params_alloca( &params );
