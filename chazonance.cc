@@ -34,24 +34,24 @@ tuple<float, float, size_t> amplitude( const Signal & samples )
 
 void program_body( const string & filename )
 {
-    SoundCard sound_card { "default", "default" };
-
     WAV wav;
     wav.read_from( filename );
 
-    if ( wav.samples().size() % sound_card.period_size() ) {
-	const size_t new_size = sound_card.period_size() * (1 + (wav.samples().size() / sound_card.period_size()));
-	cerr << "Note: WAV length of " << wav.samples().size() << " is not multiple of "
-	     << sound_card.period_size() << "; resizing to " << new_size << " samples.\n";
-	wav.samples().resize( new_size );
+    {
+	SoundCard sound_card { "default", "default" };
+
+	if ( wav.samples().size() % sound_card.period_size() ) {
+	    const size_t new_size = sound_card.period_size() * (1 + (wav.samples().size() / sound_card.period_size()));
+	    cerr << "Note: WAV length of " << wav.samples().size() << " is not multiple of "
+		 << sound_card.period_size() << "; resizing to " << new_size << " samples.\n";
+	    wav.samples().resize( new_size );
+	}
     }
 
     ComplexSignal frequency( wav.samples().size() / 2 + 1 );
     FFTPair fft { wav.samples(), frequency };
 
     RealSignal input( wav.samples().size() );
-
-    sound_card.start();
 
     for ( unsigned int iter = 0;; iter++ ) {
 	/* write out */
@@ -81,6 +81,9 @@ void program_body( const string & filename )
 	     << " @ " << peak_location_freq * MAX_FREQUENCY / frequency.size() << " Hz.\n";
 
 	/* play and record */
+
+	SoundCard sound_card { "default", "default" };
+	sound_card.start();
 	sound_card.play_and_record( wav.samples(), input );
 	wav.samples() = input;
 
