@@ -140,10 +140,22 @@ void SoundCard::start() {
 
     check_state( SND_PCM_STATE_RUNNING );
 
-    RealSignal silence( 8 * speaker_.period_size() );
+    cerr << "Playin... ";
+    RealSignal silence( 32 * speaker_.period_size() );
     RealSignal input;
 
     play_and_record( silence, input );
+    cerr << "done.\n";
+}
+
+void SoundCard::stop()
+{
+    cerr << "Playout... ";
+    RealSignal silence( 32 * speaker_.period_size() );
+    RealSignal input;
+
+    play_and_record( silence, input );
+    cerr << "done.\n";
 }
 
 SoundCard::Device::~Device()

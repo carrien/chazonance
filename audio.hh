@@ -42,6 +42,7 @@ public:
     SoundCard( const std::string & microphone_name, const std::string & speaker_name );
 
     void start();
+    void stop();
 
     void play_and_record( const RealSignal & out, RealSignal & in );
 

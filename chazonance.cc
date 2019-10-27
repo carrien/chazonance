@@ -93,6 +93,7 @@ void program_body( const string & filename )
 	SoundCard sound_card { "default", "default" };
 	sound_card.start();
 	sound_card.play_and_record( wav.samples(), input );
+	sound_card.stop();
 	wav.samples() = input;
 
 	cout << endl;
