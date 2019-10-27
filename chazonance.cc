@@ -68,7 +68,8 @@ void program_body( const string & filename )
 	/* eliminate frequencies below 20 Hz */
 	fft.time2frequency( wav.samples(), frequency );
 	for ( unsigned int i = 0; i < frequency.size(); i++ ) {
-	    if ( i * MAX_FREQUENCY / frequency.size() < 20.0 ) {
+	    const float frequency_in_hertz = i * MAX_FREQUENCY / frequency.size();
+	    if ( frequency_in_hertz < 20.0 ) {
 		frequency[ i ] = 0;
 	    }
 	}
