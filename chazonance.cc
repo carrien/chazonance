@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 
 #include "helpers.hh"
 #include "fft.hh"
@@ -29,7 +30,12 @@ tuple<float, float, size_t> amplitude( const Signal & samples )
 	    peak_location = i;
 	}
     }
-    return { 20 * log10( sqrt( sum / samples.size() ) ), 20 * log10( sqrt( peak ) ), peak_location };
+    return { sqrt( sum / samples.size() ), sqrt( peak ), peak_location };
+}
+
+float dB( const float x )
+{
+    return 20 * log10( x );
 }
 
 void program_body( const string & filename )
@@ -53,6 +59,8 @@ void program_body( const string & filename )
 
     RealSignal input( wav.samples().size() );
 
+    cout << fixed << setprecision( 2 );
+
     for ( unsigned int iter = 0;; iter++ ) {
 	/* write out */
 	wav.write_to( filename + "-generation" + to_string( iter ) + ".wav" );
@@ -69,15 +77,15 @@ void program_body( const string & filename )
 	/* find RMS amplitude and peak amplitudes */
 	const auto [ rms, peak, peak_location ] = amplitude( wav.samples() );
 	cout << "Iteration " << iter << ", playing " << wav.samples().size() / float( SAMPLE_RATE )
-	     << " seconds with RMS amplitude = " << rms << " dB"
-	     << " and peak amplitude = " << peak << " dB"
+	     << " seconds with RMS amplitude = " << dB( rms ) << " dB"
+	     << " and peak amplitude = " << dB( peak ) << " dB"
 	     << " @ " << peak_location / float( SAMPLE_RATE ) << " s.\n";
 
 	fft.time2frequency( wav.samples(), frequency );
 
 	const auto [ rms_freq, peak_freq, peak_location_freq ] = amplitude( frequency );
-	cout << "In frequency domain, RMS amplitude = " << rms_freq << " dB"
-	     << " and peak amplitude = " << peak_freq << " dB"
+	cout << "In frequency domain, RMS amplitude = " << dB( rms_freq ) << " dB"
+	     << " and peak amplitude = " << dB( peak_freq ) << " dB"
 	     << " @ " << peak_location_freq * MAX_FREQUENCY / frequency.size() << " Hz.\n";
 
 	/* play and record */

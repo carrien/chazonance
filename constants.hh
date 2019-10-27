@@ -4,6 +4,6 @@
 constexpr int SAMPLE_RATE = 48000;
 constexpr float MAX_FREQUENCY = SAMPLE_RATE / 2.0;
 constexpr int NUM_CHANNELS = 1;
-constexpr unsigned int MIN_LATENCY = 40000; /* microseconds */
+constexpr unsigned int MIN_LATENCY = 100000; /* microseconds */
 
 #endif /* CONSTANTS_HH */
