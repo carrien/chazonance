@@ -13,13 +13,13 @@ class alsa_error_category : public error_category {
     string message(const int return_value) const noexcept override { return snd_strerror(return_value); }
 };
 
-class alsa_error : public std::system_error {
-    std::string what_;
+class alsa_error : public system_error {
+    string what_;
 
 public:
-    alsa_error( const std::string & context, const int err )
+    alsa_error( const string & context, const int err )
         : system_error( err, alsa_error_category() ),
-          what_( context + ": " + std::system_error::what() )
+          what_( context + ": " + system_error::what() )
     {}
 
     const char *what() const noexcept override { return what_.c_str(); }
@@ -31,7 +31,7 @@ int alsa_check( const char * context, const int return_value )
   throw alsa_error( context, return_value );
 }
 
-int alsa_check( const std::string & context, const int return_value )
+int alsa_check( const string & context, const int return_value )
 {
     return alsa_check( context.c_str(), return_value );
 }
@@ -82,7 +82,7 @@ void SoundCard::set_params( Device & pcm )
     alsa_check( "snd_pcm_sw_params_set_start_threshold(" + pcm.name() + ")",
 		snd_pcm_sw_params_set_start_threshold( pcm,
 						       params,
-						       std::numeric_limits<int32_t>::max() ) );
+						       numeric_limits<int32_t>::max() ) );
     alsa_check( "snd_pcm_sw_params(" + pcm.name() + ")",
 		snd_pcm_sw_params( pcm, params ) );    
 }
@@ -108,14 +108,26 @@ SoundCard::SoundCard( const string & microphone_name,
     }
 
     check_state( SND_PCM_STATE_PREPARED );
+
+    microphone_.read_params();
+    speaker_.read_params();
+
+    if ( microphone_.period_size() != speaker_.period_size() ) {
+	throw runtime_error( "microphone period_size=" + to_string( microphone_.period_size() )
+			     + " but speaker period_size=" + to_string( speaker_.period_size() ) );
+    }
 }
 
 void SoundCard::start() {
-    vector<float> samples( 1024 );
-    const auto samples_written = alsa_check( "snd_pcm_writei",
-					     snd_pcm_writei( speaker_, samples.data(), samples.size() ) );
+    vector<float> samples( 2 * speaker_.period_size() );
+    const unsigned int samples_written = alsa_check( "snd_pcm_writei",
+						     snd_pcm_writei( speaker_, samples.data(), samples.size() ) );
 
     cerr << "Preroll: " << samples_written << " samples (" << samples_written / 48 << " ms).\n";
+
+    if ( samples_written != samples.size() ) {
+	throw runtime_error( "Full preroll not written." );
+    }
 
     check_state( SND_PCM_STATE_PREPARED );
 
@@ -134,5 +146,37 @@ SoundCard::Device::~Device()
 	alsa_check( "snd_pcm_close(" + name() + ")", snd_pcm_close( pcm_ ) );
     } catch ( const exception & e ) {
 	cerr << "Exception in destructor: " << e.what() << endl;
+    }
+}
+
+void SoundCard::Device::read_params()
+{
+    alsa_check( "snd_pcm_get_params(" + name() + ")",
+		snd_pcm_get_params( pcm_, &buffer_size_, &period_size_ ) );
+}
+
+void SoundCard::play_and_record( const vector<float> & out, vector<float> & in )
+{
+    if ( out.size() % speaker_.period_size() ) {
+	throw runtime_error( "output size must be multiple of soundcard period (" + to_string( speaker_.period_size() ) + " samples)" );
+    }
+
+    in.resize( out.size() );
+    for ( unsigned int i = 0; i < out.size(); i += speaker_.period_size() ) {
+	const unsigned int samples_written = alsa_check( "snd_pcm_writei",
+							 snd_pcm_writei( speaker_,
+									 &out.at( i ),
+									 speaker_.period_size() ) );
+	if ( samples_written != speaker_.period_size() ) {
+	    throw runtime_error( "short write (" + to_string( samples_written ) + ")" );
+	}
+
+	unsigned int total_samples_read = 0;
+	while ( total_samples_read < speaker_.period_size() ) {
+	    total_samples_read += alsa_check( "snd_pcm_readi",
+					      snd_pcm_readi( microphone_,
+							     &in.at( i ),
+							     speaker_.period_size() - total_samples_read ) );
+	}
     }
 }

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <asoundlib.h>
 
@@ -11,7 +12,7 @@ private:
     class Device {
 	std::string device_name_, annotation_;
 	snd_pcm_t * pcm_;
-	unsigned int buffer_size_, period_size_;
+	snd_pcm_uframes_t buffer_size_, period_size_;
 
     public:
 	Device( const std::string & name, const std::string & annotation, const snd_pcm_stream_t stream );
@@ -20,7 +21,9 @@ private:
 	std::string name() const;
 
 	operator snd_pcm_t * () { return pcm_; }
-	operator std::string () const { return name(); }
+
+	unsigned int buffer_size() const { return buffer_size_; }
+	unsigned int period_size() const { return period_size_; }
 
 	/* can't copy or assign */
 	Device( const Device & other ) = delete;
@@ -38,6 +41,10 @@ public:
     SoundCard( const std::string & microphone_name, const std::string & speaker_name );
 
     void start();
+
+    void play_and_record( const std::vector<float> & out, std::vector<float> & in );
+
+    unsigned int period_size() const { return speaker_.period_size(); }
 };
 
 #endif /* AUDIO_HH */

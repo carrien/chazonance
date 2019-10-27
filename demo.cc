@@ -16,8 +16,13 @@ void program_body( const string & microphone_name, const string & speaker_name )
     FFTPair fft { time, frequency };
     fft.time2frequency( time, frequency );
 
+    vector<float> output( 48000 );
+    vector<float> input( 48000 );
+
     SoundCard sound_card { microphone_name, speaker_name };
     sound_card.start();
+
+    sound_card.play_and_record( output, input );
 }
 
 int main( const int argc, const char * argv[] )
